@@ -47,16 +47,12 @@ pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Vec<Shar
         all_shares.push(vec![]);
     }
 
-    for (i, &datum) in data.iter().enumerate() {
+    for datum in data {
         let shares = encode_one(datum, m, k);
         for (receiver, &share) in shares.iter().enumerate() {
-            all_shares[receiver][i] = Some(share);
+            all_shares[receiver].push(share);
         }
     }
 
-    // Unwrap all maybe_shares
     all_shares
-        .into_iter()
-        .map(|maybe_shares| maybe_shares.iter().map(|maybe| maybe.unwrap()).collect())
-        .collect()
 }
