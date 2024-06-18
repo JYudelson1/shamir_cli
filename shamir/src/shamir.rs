@@ -41,14 +41,10 @@ fn encode_one<D: FieldElement>(datum: D, m: usize, k: usize) -> Vec<Share<D>> {
 /// data: all the field elements to encode
 /// m: the number of shares to create
 /// k: the number of shares necessary to rebuild the datum
-pub fn encode<D: FieldElement, const L: usize>(
-    data: [D; L],
-    m: usize,
-    k: usize,
-) -> Vec<[Share<D>; L]> {
+pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Vec<Share<D>>> {
     let mut all_shares = vec![];
     for _ in 0..m {
-        all_shares.push([None; L]);
+        all_shares.push(vec![]);
     }
 
     for (i, &datum) in data.iter().enumerate() {
@@ -61,6 +57,6 @@ pub fn encode<D: FieldElement, const L: usize>(
     // Unwrap all maybe_shares
     all_shares
         .into_iter()
-        .map(|maybe_shares| maybe_shares.map(|maybe| maybe.unwrap()))
+        .map(|maybe_shares| maybe_shares.iter().map(|maybe| maybe.unwrap()).collect())
         .collect()
 }

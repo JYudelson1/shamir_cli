@@ -79,12 +79,12 @@ impl FieldElement for GF256 {
 }
 
 impl GF256 {
-    pub fn from_bytes<const L: usize>(bytes: &[u8; L]) -> [Self; L] {
-        bytes.map(|num| Self(num))
+    pub fn from_bytes(bytes: &Vec<u8>) -> Vec<Self> {
+        bytes.iter().map(|num| Self(*num)).collect()
     }
 
-    pub fn to_bytes<const L: usize>(data: &[Self; L]) -> [u8; L] {
-        data.map(|datum| datum.0)
+    pub fn to_bytes(data: &Vec<Self>) -> Vec<u8> {
+        data.iter().map(|datum| datum.0).collect()
     }
 }
 
