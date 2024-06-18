@@ -30,6 +30,8 @@ pub trait FieldElement: Sized + PartialEq + Clone + Copy {
 }
 
 pub trait Hex: Sized {
+    const LEN_IN_BYTES: usize;
+
     fn from_bytes<T: AsRef<[u8]>>(bytes: &T) -> Vec<Self>;
 
     fn to_bytes<T: AsRef<[Self]>>(data: &T) -> Vec<u8>;

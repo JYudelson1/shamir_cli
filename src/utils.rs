@@ -2,15 +2,9 @@ use std::iter::zip;
 
 use shamir::{encode, decode, FieldElement, Hex, Share};
 
-fn shares_to_hex<D: FieldElement + Hex>(shares: Vec<Share<D>>) -> Vec<u8> {
-    let mut x = vec![];
-    let mut y = vec![];
-    for share in shares {
-        x.extend(D::to_bytes(&[share.x]));
-        y.extend(D::to_bytes(&[share.y]));
-    }
-
-    x.append(&mut y);
+fn shares_to_hex<D: FieldElement + Hex>(shares: Share<D>) -> Vec<u8> {
+    let mut x = D::to_bytes(&[shares.x]);
+    x.extend(D::to_bytes(&shares.y));
     x
 }
 
@@ -38,26 +32,23 @@ pub fn encode_message<D: FieldElement + Hex>(message: &str, m: usize, k: usize) 
     all_fragments
 }
 
-fn fragment_to_shares<D: FieldElement + Hex>(fragment: &str) -> Vec<Share<D>> {
-    let x_raw = &fragment[..(fragment.len() / 2)];
-    let y_raw = &fragment[(fragment.len() / 2)..];
+fn fragment_to_share<D: FieldElement + Hex>(fragment: &str) -> Share<D> {
+    let x_raw = &fragment[..D::LEN_IN_BYTES];
+    let y_raw = &fragment[D::LEN_IN_BYTES..];
 
-    let xs = message_to_elements(x_raw);
+    let x = message_to_elements(x_raw);
     let ys = message_to_elements(y_raw);
 
-    let mut shares = vec![];
+    assert_eq!(1, x.len());
+    let x = x[0];
 
-    for (x, y) in zip(xs, ys) {
-        shares.push(Share { x, y });
-    }
-
-    shares
+    Share { x, y: ys }
 }
 
 fn decode_fragments<D: FieldElement + Hex>(fragments: Vec<&str>) -> Option<String> {
     let all_shares = fragments
         .iter()
-        .map(|fragment| fragment_to_shares(fragment))
+        .map(|fragment| fragment_to_share(fragment))
         .collect();
 
     decode(all_shares)

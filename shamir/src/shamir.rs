@@ -1,15 +1,19 @@
+use std::iter::zip;
+
 use crate::fields::FieldElement;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Share<D: FieldElement> {
     pub x: D,
-    pub y: D,
+    pub y: Vec<D>,
 }
 
 /// datum: the field element to encode
-/// m: the number of shares to create
+/// xs: the x values at which to sample from the polynomial
 /// k: the number of shares necessary to rebuild the datum
-fn encode_one<D: FieldElement>(datum: D, m: usize, k: usize) -> Vec<Share<D>> {
+///
+/// Returns: One y-value for each x in xs
+fn encode_one_with_x<D: FieldElement>(datum: D, xs: &Vec<D>, k: usize) -> Vec<D> {
     let polynomial = datum.sample_n_others(k - 1);
 
     let calculate_polynomial = |x: D| {
@@ -27,12 +31,8 @@ fn encode_one<D: FieldElement>(datum: D, m: usize, k: usize) -> Vec<Share<D>> {
 
     let mut shares = vec![];
 
-    for x in datum.sample_n_others(m) {
-        let share = Share {
-            x: x.clone(),
-            y: calculate_polynomial(x),
-        };
-        shares.push(share);
+    for x in xs {
+        shares.push(calculate_polynomial(*x));
     }
 
     shares
@@ -41,16 +41,17 @@ fn encode_one<D: FieldElement>(datum: D, m: usize, k: usize) -> Vec<Share<D>> {
 /// data: all the field elements to encode
 /// m: the number of shares to create
 /// k: the number of shares necessary to rebuild the datum
-pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Vec<Share<D>>> {
+pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Share<D>> {
     let mut all_shares = vec![];
-    for _ in 0..m {
-        all_shares.push(vec![]);
+    let xs = data[0].sample_n_others(m);
+    for x in xs.clone() {
+        all_shares.push(Share { x, y: vec![] });
     }
 
     for datum in data {
-        let shares = encode_one(datum, m, k);
-        for (receiver, &share) in shares.iter().enumerate() {
-            all_shares[receiver].push(share);
+        let ys = encode_one_with_x(datum, &xs, k);
+        for (y, share) in zip(ys, &mut all_shares) {
+            share.y.push(y);
         }
     }
 
@@ -58,6 +59,6 @@ pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Vec<Shar
 }
 
 /// TODO
-pub fn decode<D: FieldElement>(shares: Vec<Vec<Share<D>>>) -> Option<Vec<D>> {
+pub fn decode<D: FieldElement>(shares: Vec<Share<D>>) -> Option<Vec<D>> {
     todo!()
 }

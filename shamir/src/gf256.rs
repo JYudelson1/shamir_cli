@@ -79,6 +79,8 @@ impl FieldElement for GF256 {
 }
 
 impl Hex for GF256 {
+    const LEN_IN_BYTES: usize = 1;
+
     fn from_bytes<T: AsRef<[u8]>>(bytes: &T) -> Vec<Self> {
         bytes.as_ref().iter().map(|num| Self(*num)).collect()
     }
