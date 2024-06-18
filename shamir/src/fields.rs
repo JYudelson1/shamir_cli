@@ -46,14 +46,18 @@ impl FieldElement for GF256 {
 
     fn times(&self, other: &Self) -> Self {
         // The [Peasant's algorithm](https://en.wikipedia.org/wiki/Finite_field_arithmetic#Rijndael's_(AES)_finite_field)
+        // The gist is that at the end of each step, (a*b + product) is the  true product
         let (mut a, mut b) = (self.0, other.0);
         let mut product = 0;
         let mut carry;
         for _ in 0..8 {
+            // If either a or b is 0, the product has fully accumulated
             if a == 0 || b == 0 {
                 break;
             }
             // Step 1
+            // If b is odd: product += a
+            // I.E. product += (a * last_digit_of_b)
             if b & 1 == 1 {
                 product ^= a;
             }
@@ -64,6 +68,7 @@ impl FieldElement for GF256 {
             // Step 4
             a <<= 1;
             // Step 5
+            // Subtract the irreducible polynomial of the field from a
             if carry {
                 a ^= 0b_00011011;
             }
