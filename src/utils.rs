@@ -1,5 +1,6 @@
-use hex;
-use shamir::{encode, FieldElement, Hex, Share};
+use std::iter::zip;
+
+use shamir::{encode, decode, FieldElement, Hex, Share};
 
 fn shares_to_hex<D: FieldElement + Hex>(shares: Vec<Share<D>>) -> Vec<u8> {
     let mut x = vec![];
@@ -35,4 +36,31 @@ pub fn encode_message<D: FieldElement + Hex>(message: &str, m: usize, k: usize) 
     }
 
     all_fragments
+}
+
+fn fragment_to_shares<D: FieldElement + Hex>(fragment: &str) -> Vec<Share<D>> {
+    let x_raw = &fragment[..(fragment.len() / 2)];
+    let y_raw = &fragment[(fragment.len() / 2)..];
+
+    let xs = message_to_elements(x_raw);
+    let ys = message_to_elements(y_raw);
+
+    let mut shares = vec![];
+
+    for (x, y) in zip(xs, ys) {
+        shares.push(Share { x, y });
+    }
+
+    shares
+}
+
+fn decode_fragments<D: FieldElement + Hex>(fragments: Vec<&str>) -> Option<String> {
+    let all_shares = fragments
+        .iter()
+        .map(|fragment| fragment_to_shares(fragment))
+        .collect();
+
+    decode(all_shares)
+        .map(|elements| D::to_bytes(&elements))
+        .map(|bytes| String::from_utf8(bytes).unwrap())
 }

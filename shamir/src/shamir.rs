@@ -56,3 +56,8 @@ pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Vec<Shar
 
     all_shares
 }
+
+/// TODO
+pub fn decode<D: FieldElement>(shares: Vec<Vec<Share<D>>>) -> Option<Vec<D>> {
+    todo!()
+}
