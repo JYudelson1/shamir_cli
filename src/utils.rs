@@ -1,4 +1,4 @@
-use std::iter::zip;
+use std::{fmt::Debug, iter::zip};
 
 use shamir::{encode, decode, FieldElement, Hex, Share};
 
@@ -45,7 +45,7 @@ fn fragment_to_share<D: FieldElement + Hex>(fragment: &str) -> Share<D> {
     Share { x, y: ys }
 }
 
-fn decode_fragments<D: FieldElement + Hex>(fragments: Vec<&str>) -> Option<String> {
+fn decode_fragments<D: FieldElement + Hex + Debug>(fragments: Vec<&str>) -> Option<String> {
     let all_shares = fragments
         .iter()
         .map(|fragment| fragment_to_share(fragment))
