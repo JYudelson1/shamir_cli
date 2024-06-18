@@ -1,4 +1,4 @@
-use std::{fmt::Debug, iter::zip};
+use std::iter::zip;
 
 use crate::fields::FieldElement;
 
@@ -59,7 +59,7 @@ pub fn encode<D: FieldElement>(data: Vec<D>, m: usize, k: usize) -> Vec<Share<D>
 }
 
 /// TODO
-pub fn decode<D: FieldElement + Debug>(shares: Vec<Share<D>>) -> Option<Vec<D>> {
+pub fn decode<D: FieldElement>(shares: Vec<Share<D>>) -> Option<Vec<D>> {
     let xs: Vec<D> = shares.iter().map(|share| share.x.clone()).collect();
 
     let mut decoded_ys = vec![];
@@ -77,19 +77,13 @@ pub fn decode<D: FieldElement + Debug>(shares: Vec<Share<D>>) -> Option<Vec<D>> 
         }
         // Calculate inverse of product of all (x_j - x_i)
         let mut difference_product = other_xs[0].minus(x_i);
-        println!("{difference_product:?}");
         for &other_x in &other_xs[1..] {
             let difference = other_x.minus(x_i);
-            println!("{difference:?}");
             difference_product = difference_product.times(&difference);
-            println!("... so product = {difference_product:?}");
         }
         let inverse = difference_product.inverse();
-        println!("For lagrange {i}, product = {other_xs_product:?}; inverse = {inverse:?}");
         lagrange.push(other_xs_product.times(&inverse));
     }
-
-    println!("Lagrangians: {lagrange:?}");
 
     for m in 0..messages_length {
         let ys: Vec<D> = shares.iter().map(|share| share.y[m].clone()).collect();
