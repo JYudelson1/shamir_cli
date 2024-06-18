@@ -1,4 +1,4 @@
-use crate::FieldElement;
+use crate::{fields::Hex, FieldElement};
 
 // The following is in the field GF(2^8)
 // Todo: Log/Exp tables would be faster
@@ -78,13 +78,13 @@ impl FieldElement for GF256 {
     }
 }
 
-impl GF256 {
-    pub fn from_bytes(bytes: &Vec<u8>) -> Vec<Self> {
-        bytes.iter().map(|num| Self(*num)).collect()
+impl Hex for GF256 {
+    fn from_bytes<T: AsRef<[u8]>>(bytes: &T) -> Vec<Self> {
+        bytes.as_ref().iter().map(|num| Self(*num)).collect()
     }
 
-    pub fn to_bytes(data: &Vec<Self>) -> Vec<u8> {
-        data.iter().map(|datum| datum.0).collect()
+    fn to_bytes<T: AsRef<[Self]>>(data: &T) -> Vec<u8> {
+        data.as_ref().iter().map(|datum| datum.0).collect()
     }
 }
 
