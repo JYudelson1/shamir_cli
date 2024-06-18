@@ -1,5 +1,6 @@
 pub trait FieldElement: Sized + PartialEq + Clone + Copy {
     const ELEMENTS: usize;
+    const ZERO: Self;
 
     fn plus(&self, other: &Self) -> Self;
     fn minus(&self, other: &Self) -> Self;

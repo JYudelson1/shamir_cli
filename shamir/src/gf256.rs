@@ -6,6 +6,7 @@ use crate::{fields::Hex, FieldElement};
 pub struct GF256(pub u8);
 impl FieldElement for GF256 {
     const ELEMENTS: usize = 256;
+    const ZERO: Self = Self(0);
 
     fn plus(&self, other: &Self) -> Self {
         GF256(self.0 ^ other.0)
@@ -21,7 +22,7 @@ impl FieldElement for GF256 {
         let (mut a, mut b) = (self.0, other.0);
         let mut product = 0;
         let mut carry;
-        for _ in 0..8 {
+        for i in 0..8 {
             // If either a or b is 0, the product has fully accumulated
             if a == 0 || b == 0 {
                 break;
@@ -35,7 +36,7 @@ impl FieldElement for GF256 {
             // Step 2
             b >>= 1;
             // Step 3
-            carry = a & 0b10000000 == 1;
+            carry = a & 0b10000000 == 0b10000000;
             // Step 4
             a <<= 1;
             // Step 5
@@ -63,7 +64,7 @@ impl FieldElement for GF256 {
             .times(&self_16)
             .times(&self_8)
             .times(&self_4)
-            .times(&self_2);
+            .times(&self);
 
         // let mut other_inverse = self.clone();
         // for _ in 0..253 {
@@ -110,8 +111,15 @@ mod tests {
 
     #[test]
     fn inverse() {
-        let a = GF256(0b_01010101);
+        let a = GF256(46);
         let b = a.inverse();
         assert_eq!(a.times(&b).times(&a), a)
+    }
+
+    #[test]
+    fn multiply() {
+        let a = GF256(0b_01010111);
+        let b = GF256(0b_00010011);
+        assert_eq!(a.times(&b), GF256(0b_11111110));
     }
 }
