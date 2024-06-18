@@ -78,6 +78,16 @@ impl FieldElement for GF256 {
     }
 }
 
+impl GF256 {
+    pub fn from_bytes<const L: usize>(bytes: &[u8; L]) -> [Self; L] {
+        bytes.map(|num| Self(num))
+    }
+
+    pub fn to_bytes<const L: usize>(data: &[Self; L]) -> [u8; L] {
+        data.map(|datum| datum.0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
