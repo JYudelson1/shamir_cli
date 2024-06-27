@@ -38,7 +38,7 @@ impl FieldElement for GF256 {
         let (mut a, mut b) = (self.0, other.0);
         let mut product = 0;
         let mut carry;
-        for i in 0..8 {
+        for _ in 0..8 {
             // If either a or b is 0, the product has fully accumulated
             if a == 0 || b == 0 {
                 break;
