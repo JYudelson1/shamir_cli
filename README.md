@@ -1,5 +1,5 @@
 TODO:
 
 - [ ] The actual CLI part
-- [ ] re-encoding
-- [ ] turn Vec<Share> into ascii
+- [x] re-encoding
+- [x] turn Share into ascii
