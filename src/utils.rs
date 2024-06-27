@@ -30,7 +30,7 @@ pub fn encode_message<D: FieldElement + Hex>(message: &str, m: usize, k: usize) 
     all_fragments
 }
 
-fn fragment_to_share<D: FieldElement + Hex>(fragment: &str) -> Share<D> {
+fn fragment_to_share<D: FieldElement + Hex>(fragment: &String) -> Share<D> {
     let x_raw = &fragment[..D::LEN_IN_BYTES];
     let y_raw = &fragment[D::LEN_IN_BYTES..];
 
@@ -43,7 +43,7 @@ fn fragment_to_share<D: FieldElement + Hex>(fragment: &str) -> Share<D> {
     Share { x, y: ys }
 }
 
-fn decode_fragments<D: FieldElement + Hex>(fragments: Vec<&str>) -> Option<String> {
+pub fn decode_message<D: FieldElement + Hex>(fragments: Vec<String>) -> Option<String> {
     let all_shares = fragments
         .iter()
         .map(|fragment| fragment_to_share(fragment))
